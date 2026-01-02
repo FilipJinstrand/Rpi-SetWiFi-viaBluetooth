@@ -322,8 +322,7 @@ $sudo rm -f /etc/systemd/system/btwifiset.service
 (cat <<EOF
 [Unit]
 Description=btwifiset Wi-Fi Configuration over Bluetooth
-#After=hciuart.service bluetooth.target
-After=bluetooth.target
+After=bluetooth.target network.target
 
 [Service]
 Type=simple
