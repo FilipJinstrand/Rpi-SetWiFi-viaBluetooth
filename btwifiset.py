@@ -66,7 +66,7 @@ PYTHONEXEC = f"{sys.executable}"
 
 class PiInfo:
     PWFILE = FILEDIR+"crypto"
-    INFOFILE = FILEDIR+"infopi. json"
+    INFOFILE = FILEDIR+"infopi.json"
 
     def __init__(self):
         self.password = self.getPassword()
@@ -207,7 +207,7 @@ class RPiId:
         out = subprocess.run(r'cat /proc/cpuinfo | grep "Serial\|Revision\|Hardware"', 
                              shell=True,capture_output=True,encoding='utf-8',text=True).stdout
         matches = re.findall(r"^(Hardware|Revision|Serial)\s+:\s(. +)", out,re.M)  
-        use_id = "". join([x[1] for x in matches])
+        use_id = "".join([x[1] for x in matches])
         if len(use_id) ==0: return None
         return use_id
     
@@ -231,7 +231,7 @@ class RPiId:
             found_id = self.getAdapterAddress(eth0)
         if found_id is not None: return found_id
         
-        interfaces = [ f. path for f in os.scandir("/sys/class/net") if f.is_dir() ]
+        interfaces = [ f.path for f in os.scandir("/sys/class/net") if f.is_dir() ]
         wireless_interfaces = []
         ethernet_interfaces = []
         
@@ -272,11 +272,11 @@ class AndroidAES:
     @staticmethod
     def decrypt(ciphertext, key):
         iv = ciphertext[: 12]
-        iv += bytes. fromhex("00000000")
+        iv += bytes.fromhex("00000000")
         ciphertext = ciphertext[12:]
         cipher = Cipher(algorithms.AES(key), modes.CBC(iv), backend=default_backend())
         decryptor = cipher.decryptor()
-        padded_data = decryptor. update(ciphertext) + decryptor.finalize()
+        padded_data = decryptor.update(ciphertext) + decryptor.finalize()
         unpadder = padding.PKCS7(128).unpadder()
         plaintext = unpadder.update(padded_data) + unpadder.finalize()
         return plaintext
@@ -297,7 +297,7 @@ class BTCrypto:
         nonce_counter.next_even()
         nonce = nonce_counter.bytes
         if nonce_counter.useAES:
-            return AndroidAES.encrypt(message. encode('utf8'),self.hashed_pw,nonce_counter)
+            return AndroidAES.encrypt(message.encode('utf8'),self.hashed_pw,nonce_counter)
         else:
             chacha = ChaCha20Poly1305(self.hashed_pw)
             ct = chacha.encrypt(nonce, message.encode(encoding = 'UTF-8', errors = 'strict'),None)
@@ -394,7 +394,7 @@ class BTCryptoManager:
         self.nonce_counter = NonceCounter(self.pi_info.last_nonce)
         self.quitting_msg = ""
         if self.pi_info.locked and self.pi_info.password is not None:  
-            self.crypto = BTCrypto(self. pi_info.password)
+            self.crypto = BTCrypto(self.pi_info.password)
         else:
             self.crypto = None
 
@@ -417,28 +417,28 @@ class BTCryptoManager:
     def getinformation(self):
         if self.pi_info.password == None:
             mLOG.log("pi info has no password")
-            return "NoPassword". encode()
+            return "NoPassword".encode()
         rpi_id_bytes = bytes.fromhex(self.pi_info.rpi_id)
-        mLOG.log(f"pi info is sending nonce:  {self.nonce_counter. num_nonce}")
-        nonce_bytes = self.nonce_counter. num_nonce.to_bytes(12, byteorder='little')
+        mLOG.log(f"pi info is sending nonce:  {self.nonce_counter.num_nonce}")
+        nonce_bytes = self.nonce_counter.num_nonce.to_bytes(12, byteorder='little')
         if self.pi_info.locked:
-            x = "LOCK". encode()
+            x = "LOCK".encode()
             return x+nonce_bytes+rpi_id_bytes
         else:
             return nonce_bytes+rpi_id_bytes
     
     def unknown(self,cypher,alreadyDecrypted = b""):
         if not self.pi_info.locked:
-            if self.pi_info. password is None:  
+            if self.pi_info.password is None:  
                 self.unknown_response = "NoPassword"
                 return
             self.pi_info.locked = True
-            self.crypto = BTCrypto(self. pi_info.password)
+            self.crypto = BTCrypto(self.pi_info.password)
             if alreadyDecrypted == b'\x1eLockRequest':
                 msg = alreadyDecrypted
             else:
                 try:  
-                    msg = self. crypto.decryptFromReceived(cypher,self.nonce_counter)
+                    msg = self.crypto.decryptFromReceived(cypher,self.nonce_counter)
                 except: 
                     msg = b""
 
@@ -468,7 +468,7 @@ class BTCryptoManager:
     def disableCrypto(self):
         if self.pi_info.locked:
             self.pi_info.locked = False
-            self. crypto = None
+            self.crypto = None
             self.pi_info.saveInfo()
 
     def encrypt(self,message):
@@ -628,9 +628,9 @@ def dbus_to_python(data):
         data = float(data)
     elif isinstance(data, dbus.Array):
         data = [dbus_to_python(value) for value in data]
-    elif isinstance(data, dbus. Dictionary):
+    elif isinstance(data, dbus.Dictionary):
         new_data = dict()
-        for key in data. keys():
+        for key in data.keys():
             new_data[dbus_to_python(key)] = dbus_to_python(data[key])
         data = new_data
     return data 
@@ -652,8 +652,8 @@ class Blue:
             obj = Blue.bus.get_object('org.bluez','/')
             obj_interface=dbus.Interface(obj,'org.freedesktop.DBus.ObjectManager')
             all = obj_interface.GetManagedObjects()
-            for item in all. items():
-                if (item[0] == '/org/bluez/hci0') or ('org.bluez.LEAdvertisingManager1' in item[1]. keys() and 'org.bluez.GattManager1' in item[1].keys()):
+            for item in all.items():
+                if (item[0] == '/org/bluez/hci0') or ('org.bluez.LEAdvertisingManager1' in item[1].keys() and 'org.bluez.GattManager1' in item[1].keys()):
                     found_flag = True
                     Blue.adapter_name = item[0]
                     Blue.adapter_obj = Blue.bus.get_object('org.bluez',Blue.adapter_name)
@@ -667,10 +667,10 @@ class Blue:
             if not found_flag: 
                 mLOG.log("No suitable Bluetooth adapter found")
         except dbus.exceptions.DBusException as e:
-            mLOG. log(f"DBus error in set_adapter: {str(e)}")
+            mLOG.log(f"DBus error in set_adapter: {str(e)}")
             raise
         except Exception as e:
-            mLOG. log(f"Error in set_adapter: {str(e)}")
+            mLOG.log(f"Error in set_adapter: {str(e)}")
             raise
 
     @staticmethod
