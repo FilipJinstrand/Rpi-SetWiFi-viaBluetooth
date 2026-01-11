@@ -16,7 +16,7 @@ Or, you can also find it by typing: BtBerryWifi , in your store search bar.
 1. Update your Raspberry Pi with *sudo apt update*, *sudo apt upgrade* and reboot (details below)
 2. run this in terminal on your RAspberry Pi:
 ```
-curl  -L https://raw.githubusercontent.com/nksan/Rpi-SetWiFi-viaBluetooth/main/btwifisetInstall.sh | bash
+curl  -L https://raw.githubusercontent.com/FilipJinstrand/Rpi-SetWiFi-viaBluetooth/main/btwifisetInstall.sh | bash
 ```
 
 ## The Problem to be solved:
@@ -50,7 +50,7 @@ sudo reboot
 
 Then, Run the installer script with the curl command below, to set up btwifiset on your Pi.
 ```
-curl  -L https://raw.githubusercontent.com/nksan/Rpi-SetWiFi-viaBluetooth/main/btwifisetInstall.sh | bash
+curl  -L https://raw.githubusercontent.com/FilipJinstrand/Rpi-SetWiFi-viaBluetooth/main/btwifisetInstall.sh | bash
 ```
 
 What the installer does:
