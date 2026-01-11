@@ -1,6 +1,6 @@
 from cryptography.hazmat.backends import default_backend
-from cryptography.hazmat.primitives. ciphers. aead import ChaCha20Poly1305
-from cryptography.hazmat.primitives. ciphers import Cipher, algorithms, modes
+from cryptography.hazmat.primitives.ciphers.aead import ChaCha20Poly1305
+from cryptography.hazmat.primitives.ciphers import Cipher, algorithms, modes
 from cryptography.hazmat.primitives import hashes
 from cryptography.hazmat.primitives import padding
 from cryptography import exceptions as crypto_exceptions
@@ -10,7 +10,7 @@ from threading import Timer
 from time import sleep
 import argparse
 import dbus
-import dbus.mainloop. glib
+import dbus.mainloop.glib
 import dbus.service
 import json
 import os
@@ -89,14 +89,14 @@ class PiInfo:
             mLOG.log(f"file {PiInfo.INFOFILE} not created yet - using default values")
             return False
         except Exception as ex:
-            mLOG. log(f"Error reading file {PiInfo.INFOFILE}: {ex}") 
+            mLOG.log(f"Error reading file {PiInfo.INFOFILE}: {ex}") 
             return False
 
     def saveInfo(self): 
         try:
             dict = {"locked": self.locked, "last_nonce":self.last_nonce}
             with open(PiInfo.INFOFILE, "w", encoding='utf8') as f:
-                json. dump(dict, f, ensure_ascii=False)
+                json.dump(dict, f, ensure_ascii=False)
             return True
         except Exception as ex: 
             mLOG.log(f"error writing to file {PiInfo.INFOFILE}: {ex}") 
@@ -312,7 +312,7 @@ class BTCrypto:
             if nonce_counter.checkLastReceived(nonce_bytes): return message
             return b""
         except Exception as ex:  
-            mLOG. log(f"crypto decrypt error (AES): {ex}")
+            mLOG.log(f"crypto decrypt error (AES): {ex}")
             raise ex
 
     def decryptChaCha(self,cypher,nonce_counter):
@@ -323,7 +323,7 @@ class BTCrypto:
             message = chacha.decrypt(nonce_bytes, ct,None)
             if nonce_counter.useAES:  mLOG.log(f'ChaCha encryption detected')
             nonce_counter.useAES = False
-            if nonce_counter. checkLastReceived(nonce_bytes): return message
+            if nonce_counter.checkLastReceived(nonce_bytes): return message
             return b""
         except crypto_exceptions.InvalidTag as invTag: 
             mLOG.log("crypto Invalid tag - cannot decode")
@@ -473,7 +473,7 @@ class BTCryptoManager:
 
     def encrypt(self,message):
         if self.crypto == None:  
-            return message. encode('utf8')
+            return message.encode('utf8')
         else:
             cypher = self.crypto.encryptForSending(message,self.nonce_counter)
             self.pi_info.last_nonce = self.nonce_counter.num_nonce
@@ -482,7 +482,7 @@ class BTCryptoManager:
     def decrypt(self,cypher,forceDecryption = False):
         if self.crypto == None and not forceDecryption:  
             try:
-                clear = cypher. decode()
+                clear = cypher.decode()
                 self.unknown_response = ""
             except:  
                 mLOG.log("While unlock received apparent encrypted msg - decrypting...")
@@ -498,7 +498,7 @@ class BTCryptoManager:
                     self.timer = None
                     self.request_counter.resetCounter()
                     self.unknown_response = ""
-                if msg_bytes. decode(errors="ignore") == self.quitting_msg:
+                if msg_bytes.decode(errors="ignore") == self.quitting_msg:
                     self.nonce_counter.removeIdentifier(cypher[0:12])
                 if forceDecryption:  
                     if msg_bytes == b'\x1eLockRequest':
@@ -611,7 +611,7 @@ class Notifications:
                 if never_encrypt:
                     encrypted = chunk_to_send.encode('utf8')
                 else:
-                    encrypted = self. cryptomgr.encrypt(chunk_to_send)
+                    encrypted = self.cryptomgr.encrypt(chunk_to_send)
                 self.notifications.append(encrypted)
             except Exception as ex:
                 mLOG.log(f"Error encrypting json notification: {ex}")
@@ -754,7 +754,7 @@ class Advertise(dbus.service.Object):
         
     def unregister(self):
         mLOG.log(f"De-Registering advertisement - path: {self.get_path()}")
-        self.ad_manager.UnregisterAdvertisement(self. get_path())
+        self.ad_manager.UnregisterAdvertisement(self.get_path())
         try:
             dbus.service.Object.remove_from_connection(self)
         except Exception as ex:
@@ -767,7 +767,7 @@ class Application(dbus.service.Object):
         self.path = "/"
         self.services = []
         self.next_index = 0
-        dbus.service.Object.__init__(self, Blue.bus, self. path)
+        dbus.service.Object.__init__(self, Blue.bus, self.path)
         self.service_manager = Blue.gatt_mgr()
 
     def get_path(self):
@@ -809,19 +809,19 @@ class Application(dbus.service.Object):
         mLOG.log(f"De-Registering Application - path: {self.get_path()}")
         try:
             for service in self.services:
-                service. deinit()
+                service.deinit()
         except Exception as exs:
-            mLOG. log(f"exception trying to deinit service")
+            mLOG.log(f"exception trying to deinit service")
             mLOG.log(exs)
         try:
             self.service_manager.UnregisterApplication(self.get_path())
         except Exception as exa:
-            mLOG. log(f"exception trying to unregister Application")
+            mLOG.log(f"exception trying to unregister Application")
             mLOG.log(exa)
         try:
-            dbus.service. Object.remove_from_connection(self)
+            dbus.service.Object.remove_from_connection(self)
         except Exception as exrc:
-            mLOG. log(f"dbus exception trying to remove object from connection")
+            mLOG.log(f"dbus exception trying to remove object from connection")
             mLOG.log(exrc)
 
 
@@ -833,7 +833,7 @@ class Service(dbus.service.Object):
         self.uuid = uuid
         self.primary = primary
         self.characteristics = []
-        dbus.service.Object.__init__(self, Blue.bus, self. path)
+        dbus.service.Object.__init__(self, Blue.bus, self.path)
 
     def deinit(self):
         mLOG.log(f"De-init Service - path: {self.path}")
@@ -1047,7 +1047,7 @@ class ScriptRunService(Service):
             # script_path = "/home/pi/scripts/install-adguard.sh"
             
             # Validate inputs
-            if not self. validate_input(name, password):
+            if not self.validate_input(name, password):
                 mLOG.log("Input validation failed")
                 return False
             
@@ -1083,7 +1083,7 @@ class ScriptRunService(Service):
             mLOG.log("Script execution timed out")
             return False
         except Exception as ex:
-            mLOG. log(f"Error executing script:  {ex}")
+            mLOG.log(f"Error executing script:  {ex}")
             return False
 
     def register_data(self, val):
@@ -1114,7 +1114,7 @@ class ScriptRunService(Service):
                 password = val[1]
                 
                 # Check for quit message
-                if name == self. phone_quitting_message["name"] and password == self.phone_quitting_message["pw"]: 
+                if name == self.phone_quitting_message["name"] and password == self.phone_quitting_message["pw"]: 
                     Blue.user_requested_endSession = True
                     self.notifications.setNotification(f'3111{self.phone_quitting_message["name"]}', "script")
                     return
