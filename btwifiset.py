@@ -204,7 +204,7 @@ class RPiId:
         return hash_hex
     
     def getNewCpuId(self):
-        out = subprocess.run('cat /proc/cpuinfo | grep "Serial\|Revision\|Hardware"', 
+        out = subprocess.run(r'cat /proc/cpuinfo | grep "Serial\|Revision\|Hardware"', 
                              shell=True,capture_output=True,encoding='utf-8',text=True).stdout
         matches = re.findall(r"^(Hardware|Revision|Serial)\s+:\s(. +)", out,re.M)  
         use_id = "". join([x[1] for x in matches])
@@ -251,7 +251,7 @@ class RPiId:
 
     def getMacAdressBluetooth(self):
         str = subprocess.run("bluetoothctl list", shell=True,capture_output=True,encoding='utf-8',text=True).stdout
-        mac = re.findall('^Controller\s+([0-9A-Fa-f:-]+)\s+', str)
+        mac = re.findall(r'^Controller\s+([0-9A-Fa-f:-]+)\s+', str)
         if len(mac) == 1: 
             if len(mac[0]) > 0:  
                 return mac[0]
@@ -406,7 +406,7 @@ class BTCryptoManager:
         if self.timer is not None:
             self.timer.cancel()
         try:
-            self.timer = Timer(20. 0,self.closeBTConnection)
+            self.timer = Timer(20.0, self.closeBTConnection)
         except Exception as ex:
             mLOG.log(f"timer not started: {ex}")
 
