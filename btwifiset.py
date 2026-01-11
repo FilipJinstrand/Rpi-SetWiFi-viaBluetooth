@@ -658,11 +658,11 @@ class Blue:
                     Blue.adapter_name = item[0]
                     Blue.adapter_obj = Blue.bus.get_object('org.bluez',Blue.adapter_name)
                     props = dbus.Interface(Blue.adapter_obj,'org.freedesktop.DBus.Properties')
-                    props. Set("org.bluez. Adapter1", "Powered", dbus.Boolean(1))
+                    props.Set("org.bluez.Adapter1", "Powered", dbus.Boolean(1))
                     props.Set("org.bluez.Adapter1", "Pairable", dbus.Boolean(0))
                     props.Set("org.bluez.Adapter1", "PairableTimeout", dbus.UInt32(0))
-                    props. Set("org.bluez. Adapter1", "Discoverable", dbus.Boolean(1))
-                    props.Set("org. bluez.Adapter1", "DiscoverableTimeout", dbus.UInt32(0))
+                    props.Set("org.bluez.Adapter1", "Discoverable", dbus.Boolean(1))
+                    props.Set("org.bluez.Adapter1", "DiscoverableTimeout", dbus.UInt32(0))
                     break
             if not found_flag: 
                 mLOG.log("No suitable Bluetooth adapter found")
@@ -679,7 +679,7 @@ class Blue:
 
     @staticmethod
     def gatt_mgr():
-        return dbus.Interface(Blue.adapter_obj,'org. bluez.GattManager1')
+        return dbus.Interface(Blue.adapter_obj,'org.bluez.GattManager1')
 
     @staticmethod
     def properties_changed(interface, changed, invalidated, path):
@@ -719,7 +719,7 @@ class Advertise(dbus.service.Object):
     def get_path(self):
         return dbus.ObjectPath(self.path)
 
-    @dbus.service.method("org. freedesktop.DBus.Properties", in_signature="s", out_signature="a{sv}")
+    @dbus.service.method("org.freedesktop.DBus.Properties", in_signature="s", out_signature="a{sv}")
     def GetAll(self, interface):
         return self.get_properties()["org.bluez.LEAdvertisement1"]
 
@@ -774,9 +774,9 @@ class Application(dbus.service.Object):
         return dbus.ObjectPath(self.path)
 
     def add_service(self, service):
-        self.services. append(service)
+        self.services.append(service)
 
-    @dbus.service.method("org.freedesktop.DBus. ObjectManager", out_signature = "a{oa{sa{sv}}}")
+    @dbus.service.method("org.freedesktop.DBus.ObjectManager", out_signature = "a{oa{sa{sv}}}")
     def GetManagedObjects(self):
         response = {}
         for service in self.services:
@@ -871,7 +871,7 @@ class Service(dbus.service.Object):
     def get_characteristics(self):
         return self.characteristics
 
-    @dbus.service.method("org.freedesktop.DBus. Properties", in_signature='s', out_signature='a{sv}')
+    @dbus.service.method("org.freedesktop.DBus.Properties", in_signature='s', out_signature='a{sv}')
     def GetAll(self, interface):
         return self.get_properties()["org.bluez.GattService1"]
 
@@ -883,7 +883,7 @@ class Characteristic(dbus.service.Object):
         self.service = service
         self.flags = flags
         self.descriptors = []
-        dbus.service. Object.__init__(self, Blue. bus, self.path)
+        dbus.service.Object.__init__(self, Blue.bus, self.path)
 
     def deinit(self):
         mLOG.log(f"De-init Characteristic - path: {self.path}")
@@ -956,22 +956,22 @@ class Descriptor(dbus.service.Object):
     def __init__(self, index,uuid, flags, characteristic):
         self.path = characteristic.path + '/desc' + str(index)
         self.uuid = uuid
-        self. flags = flags
+        self.flags = flags
         self.chrc = characteristic
-        dbus. service.Object.__init__(self, Blue.bus, self.path)
+        dbus.service.Object.__init__(self, Blue.bus, self.path)
 
     def deinit(self):
         mLOG.log(f"De-init Descriptor - path: {self.path}")
         try:
-            dbus.service. Object.remove_from_connection(self)
+            dbus.service.Object.remove_from_connection(self)
         except Exception as ex:
-            mLOG. log(ex)
+            mLOG.log(ex)
 
     def get_properties(self):
         return {
                 "org.bluez.GattDescriptor1": {
                         'Characteristic': self.chrc.get_path(),
-                        'UUID': self. uuid,
+                        'UUID': self.uuid,
                         'Flags': self.flags,
                         'Secure': dbus.Array([], signature='s') 
                 }
@@ -980,7 +980,7 @@ class Descriptor(dbus.service.Object):
     def get_path(self):
         return dbus.ObjectPath(self.path)
 
-    @dbus.service.method("org. freedesktop.DBus.Properties", in_signature='s', out_signature='a{sv}')
+    @dbus.service.method("org.freedesktop.DBus.Properties", in_signature='s', out_signature='a{sv}')
     def GetAll(self, interface):
         return self.get_properties()["org.bluez.GattDescriptor1"]
 
@@ -988,7 +988,7 @@ class Descriptor(dbus.service.Object):
     def ReadValue(self, options):
         mLOG.log('Default ReadValue called, returning error')
 
-    @dbus.service.method("org.bluez. GattDescriptor1", in_signature='aya{sv}')
+    @dbus.service.method("org.bluez.GattDescriptor1", in_signature='aya{sv}')
     def WriteValue(self, value, options):
         mLOG.log('Default WriteValue called, returning error')
 
@@ -1143,7 +1143,7 @@ class InfoCharacteristic(Characteristic):
     def convertInfo(self, data):
         msg = ""
         try:  
-            prefix = data. decode("utf8")
+            prefix = data.decode("utf8")
         except:
             prefix = ""
         if prefix == "NoPassword":  return "NoPassword"
@@ -1154,8 +1154,8 @@ class InfoCharacteristic(Characteristic):
             prefix = ""
         if prefix == "LOCK" and len(data)>17: 
             msg = prefix
-            msg += str(int. from_bytes(data[4:16], byteorder='little', signed=False))
-            msg += data[16:]. hex()
+            msg += str(int.from_bytes(data[4:16], byteorder='little', signed=False))
+            msg += data[16:].hex()
             return msg
         if len(data)>13:
             msg = str(int.from_bytes(data[0:12], byteorder='little', signed=False))
@@ -1167,7 +1167,7 @@ class InfoCharacteristic(Characteristic):
         value = []
         msg_bytes = self.service.cryptomgr.getinformation()
         for b in msg_bytes:
-            value.append(dbus. Byte(b))
+            value.append(dbus.Byte(b))
         mLOG.log(f'Client is reading PiInfo: {self.convertInfo(msg_bytes)}')
         return value
 
@@ -1186,7 +1186,7 @@ class InfoDescriptor(Descriptor):
         value = []
         desc = self.INFO_DESCRIPTOR_VALUE
         for c in desc:
-            value.append(dbus.Byte(c. encode()))
+            value.append(dbus.Byte(c.encode()))
         return value
 
 
@@ -1203,7 +1203,7 @@ class ScriptDataCharacteristic(Characteristic):
         """Send pending notifications"""
         if self.notifying:
             while len(self.service.notifications.notifications) > 0:
-                thisNotification_bytes = self.service.notifications.notifications. pop(0)
+                thisNotification_bytes = self.service.notifications.notifications.pop(0)
                 needToUnlock = thisNotification_bytes == self.service.notifications.unlockingMsg
                 value = []
                 for b in thisNotification_bytes: 
@@ -1242,14 +1242,14 @@ class ScriptDataCharacteristic(Characteristic):
         """Receive name and password from client"""
         received = ['', '']
         value_python_bytes = bytearray(value)
-        value_d = self.service.cryptomgr. decrypt(value_python_bytes)
-        bytes_arr = value_d. split(SEPARATOR_HEX)
+        value_d = self.service.cryptomgr.decrypt(value_python_bytes)
+        bytes_arr = value_d.split(SEPARATOR_HEX)
         received = []
         for bb in bytes_arr:
-            received.append(bb. decode("utf8"))
+            received.append(bb.decode("utf8"))
         
         if len(received) == 1:
-            received. append("")
+            received.append("")
             
         mLOG.log(f'From client received Name/PW: {received[0]}/[password hidden]')
         ConfigData.reset_timeout()
@@ -1300,7 +1300,7 @@ class BLEManager:
             sleep(1)
         except Exception as ex:
             mLOG.log(ex)
-        self.mainloop. quit()
+        self.mainloop.quit()
 
     def graceful_quit(self, signum, frame):
         mLOG.log("stopping main loop on SIGTERM received")
@@ -1317,14 +1317,14 @@ class BLEManager:
     def start(self):
         mLOG.log("** Starting BLE Script Runner **")
         mLOG.log("** Version: 1.0 - March 2025 **\n")
-        mLOG.log(f'Server timeout: {int(ConfigData. TIMEOUT/60)} minutes')
+        mLOG.log(f'Server timeout: {int(ConfigData.TIMEOUT/60)} minutes')
         mLOG.log("starting BLE Server")
         ConfigData.reset_timeout()
         
-        dbus.mainloop. glib. DBusGMainLoop(set_as_default=True)
+        dbus.mainloop.glib.DBusGMainLoop(set_as_default=True)
 
         Blue.set_adapter()
-        Blue.bus. add_signal_receiver(Blue.properties_changed,
+        Blue.bus.add_signal_receiver(Blue.properties_changed,
                     dbus_interface = "org.freedesktop.DBus.Properties",
                     signal_name = "PropertiesChanged",
                     arg0 = "org.bluez.Device1",
